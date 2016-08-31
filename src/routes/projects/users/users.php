@@ -2,18 +2,40 @@
 
 $app->group('/users', function () use ($app) {
 
-    $app->get('', function ($request, $response, $args) {
+    $app->group('/{user_id}', function () use ($app) {
+        
+        $app->get('', function ($request, $response, $args) {
 
-        $data[] = 'project user 1';
-        $data[] = 'project user 2';
-        $data[] = 'project user 3';
+            $project_id = $args['project_id'];
+            $user_id = $args['user_id'];
 
-        return $response->withJson($data);
+            require_once '../src/dbconnect.php';
+
+            $query = 'SELECT id,firstname,lastname FROM users INNER JOIN users_in_projects WHERE project_id="' . $project_id . '" AND user_id="' . $user_id . '" LIMIT 1';
+            $result = $mysqli->query($query);
+
+            $data = $result->fetch_assoc();
+
+            if(!$data) return $response->withJson('NOT_FOUND', 404);
+
+            return $response->withJson($data);
+        });
     });
 
-    $app->get('/{user_id}', function ($request, $response, $args) {
+    $app->get('', function ($request, $response, $args) {   
 
-        $data = 'project ' . $args['project_id'] . ', user ' . $args['user_id'];
+        $project_id = $args['project_id'];
+
+        require_once '../src/dbconnect.php';
+
+        $query = 'SELECT id,firstname,lastname FROM users INNER JOIN users_in_projects WHERE project_id="' . $project_id . '"';
+        $result = $mysqli->query($query);
+
+        while($row = $result->fetch_assoc()){
+            $data[] = $row;
+        }
+
+        if(!$data) $data = [];
 
         return $response->withJson($data);
     });

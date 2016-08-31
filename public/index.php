@@ -6,6 +6,7 @@ require '../vendor/autoload.php';
 
 $app = new \Slim\App;
 
+// require_once '../src/dbconnect.php';
 require_once '../src/routing.php';
 
 $app->run();

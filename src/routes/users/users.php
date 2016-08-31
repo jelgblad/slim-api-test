@@ -2,18 +2,37 @@
 
 $app->group('/users', function () use ($app) {
 
-    $app->get('', function ($request, $response, $args) {
+    $app->group('/{user_id}', function () use ($app) {
+        
+        $app->get('', function ($request, $response, $args) {
 
-        $data[] = 'user 1';
-        $data[] = 'user 2';
-        $data[] = 'user 3';
+            $user_id = $args['user_id'];
 
-        return $response->withJson($data);
+            require_once '../src/dbconnect.php';
+
+            $query = 'SELECT * FROM users WHERE id="' . $user_id . '" LIMIT 1';
+            $result = $mysqli->query($query);
+
+            $data = $result->fetch_assoc();
+
+            if(!$data) return $response->withJson('NOT_FOUND', 404);
+
+            return $response->withJson($data);
+        });
     });
 
-    $app->get('/{user_id}', function ($request, $response, $args) {
+    $app->get('', function ($request, $response, $args) {   
 
-        $data = 'user ' . $args['user_id'];
+        require_once '../src/dbconnect.php';
+
+        $query = 'SELECT * FROM users';
+        $result = $mysqli->query($query);
+
+        while($row = $result->fetch_assoc()){
+            $data[] = $row;
+        }
+
+        if(!$data) $data = [];
 
         return $response->withJson($data);
     });
