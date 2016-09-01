@@ -65,8 +65,8 @@ $app->group('/users', function () use ($app) {
         // Create values array
         $insert_values = '';
         $insert_values .= 'REPLACE(UUID(),"-","")';
-        if(isset($firstname)) $insert_values .= ',"' . $firstname . '"';
-        if(isset($lastname)) $insert_values .= ',"' . $lastname . '"';
+        $insert_values .= ',"' . $firstname . '"';
+        $insert_values .= ',"' . $lastname . '"';
 
         // Build and execute query
         $query = 'INSERT INTO users VALUES (' . $insert_values . ')';

@@ -28,7 +28,7 @@ $app->group('/projects', function () use ($app) {
 
         require_once '../src/dbconnect.php';
 
-        $query = 'SELECT id,name,description FROM projects INNER JOIN users_in_projects ON projects.id=users_in_projects.project_id WHERE user_id="' . $user_id . '"';
+        $query = 'SELECT id AS project_id FROM projects INNER JOIN users_in_projects ON projects.id=users_in_projects.project_id WHERE user_id="' . $user_id . '"';
         $result = $mysqli->query($query);
 
         while($row = $result->fetch_assoc()){

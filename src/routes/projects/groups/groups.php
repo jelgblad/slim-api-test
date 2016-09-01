@@ -1,17 +1,17 @@
 <?php
 
-$app->group('/users', function () use ($app) {
+$app->group('/groups', function () use ($app) {
 
-    $app->group('/{user_id}', function () use ($app) {
+    $app->group('/{group_id}', function () use ($app) {
         
         $app->get('', function ($request, $response, $args) {
 
             $project_id = $args['project_id'];
-            $user_id = $args['user_id'];
+            $group_id = $args['group_id'];
 
             require_once '../src/dbconnect.php';
 
-            $query = 'SELECT id AS user_id FROM users INNER JOIN users_in_projects ON users.id=users_in_projects.user_id WHERE project_id="' . $project_id . '" AND user_id="' . $user_id . '" LIMIT 1';
+            $query = 'SELECT id,name,description FROM groups WHERE project_id="' . $project_id . '" AND id="' . $group_id . '" LIMIT 1';
             $result = $mysqli->query($query);
 
             $data = $result->fetch_assoc();
@@ -28,7 +28,7 @@ $app->group('/users', function () use ($app) {
 
         require_once '../src/dbconnect.php';
 
-        $query = 'SELECT id AS user_id FROM users INNER JOIN users_in_projects ON users.id=users_in_projects.user_id WHERE project_id="' . $project_id . '"';
+        $query = 'SELECT id,name,description FROM groups WHERE project_id="' . $project_id . '"';
         $result = $mysqli->query($query);
 
         while($row = $result->fetch_assoc()){
@@ -42,38 +42,40 @@ $app->group('/users', function () use ($app) {
 
     $app->post('', function ($request, $response, $args) {
 
-        $project_id = $args['project_id'];
-
         // Parse body
         $body = $request->getParsedBody();
 
         // Get fields
-        // if(isset($body['project_id'])) $project_id = $body['project_id'];
-        if(isset($body['user_id'])) $user_id = $body['user_id'];
+        if(isset($body['project_id'])) $project_id = $body['project_id'];
+        if(isset($body['name'])) $name = $body['name'];
+        if(isset($body['description'])) $description = $body['description'];
 
         // Check required fields
-        // if(!isset($project_id)) return $response->withJson('BAD_REQUEST', 400);
-        if(!isset($user_id)) return $response->withJson('BAD_REQUEST', 400);
+        if(!isset($project_id)) return $response->withJson('BAD_REQUEST', 400);
+        if(!isset($name)) return $response->withJson('BAD_REQUEST', 400);
+        if(!isset($description)) $description = '';
 
         require_once '../src/dbconnect.php';
 
         // Check if resouce exits
-        $query = 'SELECT * FROM users_in_projects WHERE project_id="' . $project_id . '" AND user_id="' . $user_id . '"';
-        if($mysqli->query($query)->num_rows > 0) return $response->withJson('PROJECT_USER_EXISTS', 409);
+        $query = 'SELECT * FROM groups WHERE project_id="' . $project_id . '" AND name="' . $name . '"';
+        if($mysqli->query($query)->num_rows > 0) return $response->withJson('GROUP_EXISTS', 409);
 
         // Create values array
         $insert_values = '';
-        $insert_values .= '"' . $user_id . '"';
+        $insert_values .= 'REPLACE(UUID(),"-","")';
         $insert_values .= ',"' . $project_id . '"';
+        $insert_values .= ',"' . $name . '"';
+        $insert_values .= ',"' . $description . '"';
 
         // Build and execute query
-        $query = 'INSERT INTO users_in_projects VALUES (' . $insert_values . ')';
+        $query = 'INSERT INTO groups VALUES (' . $insert_values . ')';
         $result = $mysqli->query($query);
 
         // Check result
         if(!$result) return $response->withJson('COULD_NOT_INSERT', 500);
 
         // Return created
-        return $response->withJson('USER_ADDED_TO_PROJECT', 201);
+        return $response->withJson('GROUP_CREATED', 201);
     });
 });

@@ -6,6 +6,7 @@ $app->group('/projects', function () use ($app) {
     // Single project
     $app->group('/{project_id}', function () use ($app) {
 
+        require_once 'groups/groups.php';
         require_once 'users/users.php';
         
         $app->get('', function ($request, $response, $args) {
@@ -68,6 +69,7 @@ $app->group('/projects', function () use ($app) {
 
         // Check required fields
         if(!isset($name)) return $response->withJson('BAD_REQUEST', 400);
+        if(!isset($description)) $description = '';
 
         require_once '../src/dbconnect.php';
 
@@ -80,8 +82,8 @@ $app->group('/projects', function () use ($app) {
         // Create values array
         $insert_values = '';
         $insert_values .= 'REPLACE(UUID(),"-","")';
-        if(isset($name)) $insert_values .= ',"' . $name . '"';
-        if(isset($description)) $insert_values .= ',"' . $description . '"';
+        $insert_values .= ',"' . $name . '"';
+        $insert_values .= ',"' . $description . '"';
 
         // Build and execute query
         $query = 'INSERT INTO projects VALUES (' . $insert_values . ')';
