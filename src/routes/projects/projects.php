@@ -1,7 +1,9 @@
 <?php
 
+// Projects
 $app->group('/projects', function () use ($app) {
-
+    
+    // Single project
     $app->group('/{project_id}', function () use ($app) {
 
         require_once 'users/users.php';
@@ -17,7 +19,7 @@ $app->group('/projects', function () use ($app) {
 
             $data = $result->fetch_assoc();
 
-            if(!$data) return $response->withJson('NOT_FOUND', 404);
+            if(!isset($data)) return $response->withJson('NOT_FOUND', 404);
 
             return $response->withJson($data);
         });
@@ -50,7 +52,7 @@ $app->group('/projects', function () use ($app) {
             $data[] = $row;
         }
 
-        if(!$data) $data = [];
+        if(!isset($data)) $data = [];
 
         return $response->withJson($data);
     });
@@ -69,11 +71,11 @@ $app->group('/projects', function () use ($app) {
 
         require_once '../src/dbconnect.php';
 
-        // Create fields array
-        $insert_fields = '';
-        $insert_fields .= 'id';
-        if(isset($name)) $insert_fields .= ',name';
-        if(isset($description)) $insert_fields .= ',description';
+        // // Create fields array
+        // $insert_fields = '';
+        // $insert_fields .= 'id';
+        // if(isset($name)) $insert_fields .= ',name';
+        // if(isset($description)) $insert_fields .= ',description';
 
         // Create values array
         $insert_values = '';
@@ -82,13 +84,13 @@ $app->group('/projects', function () use ($app) {
         if(isset($description)) $insert_values .= ',"' . $description . '"';
 
         // Build and execute query
-        $query = 'INSERT INTO projects (' . $insert_fields . ') VALUES (' . $insert_values . ')';
+        $query = 'INSERT INTO projects VALUES (' . $insert_values . ')';
         $result = $mysqli->query($query);
 
         // Check result
         if(!$result) return $response->withJson('BAD_REQUEST', 400);
 
         // Return created
-        return $response->withJson('CREATED', 201);
+        return $response->withJson('PROJECT_CREATED', 201);
     });
 });

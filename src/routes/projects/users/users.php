@@ -11,12 +11,12 @@ $app->group('/users', function () use ($app) {
 
             require_once '../src/dbconnect.php';
 
-            $query = 'SELECT id,firstname,lastname FROM users INNER JOIN users_in_projects WHERE project_id="' . $project_id . '" AND user_id="' . $user_id . '" LIMIT 1';
+            $query = 'SELECT id,firstname,lastname FROM users INNER JOIN users_in_projects ON users.id=users_in_projects.user_id WHERE project_id="' . $project_id . '" AND user_id="' . $user_id . '" LIMIT 1';
             $result = $mysqli->query($query);
 
             $data = $result->fetch_assoc();
 
-            if(!$data) return $response->withJson('NOT_FOUND', 404);
+            if(!isset($data)) return $response->withJson('NOT_FOUND', 404);
 
             return $response->withJson($data);
         });
@@ -28,15 +28,50 @@ $app->group('/users', function () use ($app) {
 
         require_once '../src/dbconnect.php';
 
-        $query = 'SELECT id,firstname,lastname FROM users INNER JOIN users_in_projects WHERE project_id="' . $project_id . '"';
+        $query = 'SELECT id,firstname,lastname FROM users INNER JOIN users_in_projects ON users.id=users_in_projects.user_id WHERE project_id="' . $project_id . '"';
         $result = $mysqli->query($query);
 
         while($row = $result->fetch_assoc()){
             $data[] = $row;
         }
 
-        if(!$data) $data = [];
+        if(!isset($data)) $data = [];
 
         return $response->withJson($data);
+    });
+
+    $app->post('', function ($request, $response, $args) {
+
+        // Parse body
+        $body = $request->getParsedBody();
+
+        // Get fields
+        if(isset($body['project_id'])) $project_id = $body['project_id'];
+        if(isset($body['user_id'])) $user_id = $body['user_id'];
+
+        // Check required fields
+        if(!isset($project_id)) return $response->withJson('BAD_REQUEST', 400);
+        if(!isset($user_id)) return $response->withJson('BAD_REQUEST', 400);
+
+        require_once '../src/dbconnect.php';
+
+        // Check if resouce exits
+        $query = 'SELECT * FROM users_in_projects WHERE project_id="' . $project_id . '" AND user_id="' . $user_id . '"';
+        if($mysqli->query($query)->num_rows > 0) return $response->withJson('PROJECT_USER_EXISTS', 409);
+
+        // Create values array
+        $insert_values = '';
+        if(isset($project_id)) $insert_values .= '"' . $project_id . '"';
+        if(isset($user_id)) $insert_values .= ',"' . $user_id . '"';
+
+        // Build and execute query
+        $query = 'INSERT INTO users_in_projects VALUES (' . $insert_values . ')';
+        $result = $mysqli->query($query);
+
+        // Check result
+        if(!$result) return $response->withJson('COULD_NOT_INSERT', 500);
+
+        // Return created
+        return $response->withJson('USER_ADDED_TO_PROJECT', 201);
     });
 });
