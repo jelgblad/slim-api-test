@@ -42,16 +42,18 @@ $app->group('/groups', function () use ($app) {
 
     $app->post('', function ($request, $response, $args) {
 
+        $project_id = $args['project_id'];
+
         // Parse body
         $body = $request->getParsedBody();
 
         // Get fields
-        if(isset($body['project_id'])) $project_id = $body['project_id'];
+        // if(isset($body['project_id'])) $project_id = $body['project_id'];
         if(isset($body['name'])) $name = $body['name'];
         if(isset($body['description'])) $description = $body['description'];
 
         // Check required fields
-        if(!isset($project_id)) return $response->withJson('BAD_REQUEST', 400);
+        // if(!isset($project_id)) return $response->withJson('BAD_REQUEST', 400);
         if(!isset($name)) return $response->withJson('BAD_REQUEST', 400);
         if(!isset($description)) $description = '';
 
