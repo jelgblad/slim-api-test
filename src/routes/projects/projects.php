@@ -5,17 +5,24 @@ $app->group('/projects', function () use ($app) {
     
     // Single project
     $app->group('/{project_id}', function () use ($app) {
-
+        
         require_once 'groups/groups.php';
         require_once 'users/users.php';
         
         $app->get('', function ($request, $response, $args) {
 
+            /// TODO: authenticate user
+            $auth_user_id = '31f3265d701b11e6961300ffa053e90f';
+        
             $project_id = $args['project_id'];
 
             require_once '../src/dbconnect.php';
 
-            $query = 'SELECT * FROM projects WHERE id="' . $project_id . '" LIMIT 1';
+            // $query = 'SELECT * FROM projects WHERE id="' . $project_id . '" LIMIT 1';
+            $query = 'SELECT id,name,description FROM projects';
+            $query .= ' INNER JOIN users_in_projects ON projects.id=users_in_projects.project_id';
+            $query .= ' WHERE users_in_projects.user_id="' . $auth_user_id . '"';
+            $query .= ' AND id="' . $project_id . '" LIMIT 1';
             $result = $mysqli->query($query);
 
             $data = $result->fetch_assoc();
@@ -44,9 +51,15 @@ $app->group('/projects', function () use ($app) {
 
     $app->get('', function ($request, $response, $args) {   
 
+        /// TODO: authenticate user
+        $auth_user_id = '31f3265d701b11e6961300ffa053e90f';
+
         require_once '../src/dbconnect.php';
 
-        $query = 'SELECT * FROM projects';
+        // $query = 'SELECT * FROM projects';
+        $query = 'SELECT id,name,description FROM projects';
+        $query .= ' INNER JOIN users_in_projects ON projects.id=users_in_projects.project_id';
+        $query .= ' WHERE users_in_projects.user_id="' . $auth_user_id . '"';
         $result = $mysqli->query($query);
 
         while($row = $result->fetch_assoc()){
