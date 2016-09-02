@@ -11,35 +11,44 @@ $app->group('/projects', function () use ($app) {
         
         $app->get('', function ($request, $response, $args) use ($app) {
 
-            /// TODO: authenticate user
-            $auth_user_id = $app->auth;
+            // /// TODO: authenticate user
+            // $auth_user_id = $app->auth;
         
+            // $project_id = $args['project_id'];
+
+            // require_once '../src/dbconnect.php';
+
+            // // $query = 'SELECT * FROM projects WHERE id="' . $project_id . '" LIMIT 1';
+            // $query = 'SELECT id,name,description FROM projects';
+            // $query .= ' WHERE id="' . $project_id . '" LIMIT 1';
+            // $result = $mysqli->query($query);
+
+            // $data = $result->fetch_assoc();
+
+            // if(!isset($data)) return $response->withJson('NOT_FOUND', 404);
+
+            // return $response->withJson($data);
+
             $project_id = $args['project_id'];
+            $embed = $request->getParam('embed');
 
-            require_once '../src/dbconnect.php';
+            // $data = getProject($app, $project_id);
+            $data = getProjects($app, [
+                'project_id' => $project_id,
+                'embed' => $embed
+            ]);
 
-            // $query = 'SELECT * FROM projects WHERE id="' . $project_id . '" LIMIT 1';
-            $query = 'SELECT id,name,description FROM projects';
-            // $query .= ' INNER JOIN users_in_projects ON projects.id=users_in_projects.project_id';
-            // $query .= ' WHERE users_in_projects.user_id="' . $auth_user_id . '"';
-            $query .= ' WHERE id="' . $project_id . '" LIMIT 1';
-            $result = $mysqli->query($query);
-
-            $data = $result->fetch_assoc();
-
+            /// TODO: is this needed?
             if(!isset($data)) return $response->withJson('NOT_FOUND', 404);
 
             return $response->withJson($data);
         });
 
-        $app->delete('', function ($request, $response, $args) {
+        $app->delete('', function ($request, $response, $args) use ($app) {
 
             $project_id = $args['project_id'];
 
-            require_once '../src/dbconnect.php';
-
-            $query = 'DELETE FROM projects WHERE id="' . $project_id . '"';
-            $result = $mysqli->query($query);
+            $result = deleteProject($app, $project_id);
 
             // Check result
             if(!$result) return $response->withJson('BAD_REQUEST', 400);
@@ -68,22 +77,28 @@ $app->group('/projects', function () use ($app) {
 
     $app->get('', function ($request, $response, $args) use ($app) {   
 
-        $auth_user_id = $app->auth;
+        // $auth_user_id = $app->auth;
 
-        // $query = 'SELECT * FROM projects';
-        $query = 'SELECT DISTINCT id, projects.user_id, name, description FROM projects';
-        $query .= ' LEFT JOIN users_in_projects ON projects.id=users_in_projects.project_id';
-        $query .= ' WHERE users_in_projects.user_id="' . $auth_user_id . '"';
-        $query .= ' OR projects.user_id="' . $auth_user_id . '"';
-        $result = $app->db->query($query);
+        // // $query = 'SELECT * FROM projects';
+        // $query = 'SELECT DISTINCT id, projects.user_id, name, description FROM projects';
+        // $query .= ' LEFT JOIN users_in_projects ON projects.id=users_in_projects.project_id';
+        // $query .= ' WHERE users_in_projects.user_id="' . $auth_user_id . '"';
+        // $query .= ' OR projects.user_id="' . $auth_user_id . '"';
+        // $result = $app->db->query($query);
 
-        // print_r($query);
+        // // print_r($query);
 
-        while($row = $result->fetch_assoc()){
-            $data[] = $row;
-        }
+        // while($row = $result->fetch_assoc()){
+        //     $data[] = $row;
+        // }
 
-        if(!isset($data)) $data = [];
+        // if(!isset($data)) $data = [];
+
+        $embed = $request->getParam('embed');
+
+        $data = getProjects($app, [
+            'embed' => $embed
+        ]);
 
         return $response->withJson($data);
     });
@@ -103,24 +118,20 @@ $app->group('/projects', function () use ($app) {
         if(!isset($name)) return $response->withJson('BAD_REQUEST', 400);
         if(!isset($description)) $description = '';
 
-        require_once '../src/dbconnect.php';
+        // require_once '../src/dbconnect.php';
 
-        // // Create fields array
-        // $insert_fields = '';
-        // $insert_fields .= 'id';
-        // if(isset($name)) $insert_fields .= ',name';
-        // if(isset($description)) $insert_fields .= ',description';
+        // // Create values array
+        // $insert_values = '';
+        // $insert_values .= 'REPLACE(UUID(),"-","")';
+        // $insert_values .= ',"' . $auth_user_id . '"';
+        // $insert_values .= ',"' . $name . '"';
+        // $insert_values .= ',"' . $description . '"';
 
-        // Create values array
-        $insert_values = '';
-        $insert_values .= 'REPLACE(UUID(),"-","")';
-        $insert_values .= ',"' . $auth_user_id . '"';
-        $insert_values .= ',"' . $name . '"';
-        $insert_values .= ',"' . $description . '"';
+        // // Build and execute query
+        // $query = 'INSERT INTO projects VALUES (' . $insert_values . ')';
+        // $result = $mysqli->query($query);
 
-        // Build and execute query
-        $query = 'INSERT INTO projects VALUES (' . $insert_values . ')';
-        $result = $mysqli->query($query);
+        $result = createProject($app, $name, $description);
 
         // Check result
         if(!$result) return $response->withJson('BAD_REQUEST', 400);

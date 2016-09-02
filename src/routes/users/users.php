@@ -8,16 +8,13 @@ $app->group('/users', function () use ($app) {
 
         require_once 'projects/projects.php';
         
-        $app->get('', function ($request, $response, $args) {
+        $app->get('', function ($request, $response, $args) use ($app) {
 
             $user_id = $args['user_id'];
 
-            require_once '../src/dbconnect.php';
-
-            $query = 'SELECT * FROM users WHERE id="' . $user_id . '" LIMIT 1';
-            $result = $mysqli->query($query);
-
-            $data = $result->fetch_assoc();
+            $data = getUsers($app, [
+                'user_id' => $user_id
+            ]);
 
             if(!isset($data)) return $response->withJson('NOT_FOUND', 404);
 
@@ -25,23 +22,14 @@ $app->group('/users', function () use ($app) {
         });
     });
 
-    $app->get('', function ($request, $response, $args) {   
+    $app->get('', function ($request, $response, $args) use ($app)  {   
 
-        require_once '../src/dbconnect.php';
-
-        $query = 'SELECT * FROM users';
-        $result = $mysqli->query($query);
-
-        while($row = $result->fetch_assoc()){
-            $data[] = $row;
-        }
-
-        if(!isset($data)) $data = [];
+        $data = getUsers($app);
 
         return $response->withJson($data);
     });
 
-    $app->post('', function ($request, $response, $args) {
+    $app->post('', function ($request, $response, $args) use ($app)  {
 
         // Parse body
         $body = $request->getParsedBody();

@@ -4,43 +4,47 @@ $app->group('/users', function () use ($app) {
 
     $app->group('/{user_id}', function () use ($app) {
         
-        $app->get('', function ($request, $response, $args) {
+        // $app->get('', function ($request, $response, $args) {
 
-            $project_id = $args['project_id'];
-            $user_id = $args['user_id'];
+        //     $project_id = $args['project_id'];
+        //     $user_id = $args['user_id'];
 
-            require_once '../src/dbconnect.php';
+        //     require_once '../src/dbconnect.php';
 
-            $query = 'SELECT id AS user_id FROM users INNER JOIN users_in_projects ON users.id=users_in_projects.user_id WHERE project_id="' . $project_id . '" AND user_id="' . $user_id . '" LIMIT 1';
-            $result = $mysqli->query($query);
+        //     $query = 'SELECT id AS user_id FROM users INNER JOIN users_in_projects ON users.id=users_in_projects.user_id WHERE project_id="' . $project_id . '" AND user_id="' . $user_id . '" LIMIT 1';
+        //     $result = $mysqli->query($query);
 
-            $data = $result->fetch_assoc();
+        //     $data = $result->fetch_assoc();
 
-            if(!isset($data)) return $response->withJson('NOT_FOUND', 404);
+        //     if(!isset($data)) return $response->withJson('NOT_FOUND', 404);
 
-            return $response->withJson($data);
-        });
+        //     return $response->withJson($data);
+        // });
     });
 
-    $app->get('', function ($request, $response, $args) {   
+    $app->get('', function ($request, $response, $args) use ($app) {   
 
         $project_id = $args['project_id'];
 
-        require_once '../src/dbconnect.php';
+        $data = getUsers($app, [
+            'project_id' => $project_id
+        ]);
 
-        $query = 'SELECT id AS user_id FROM users INNER JOIN users_in_projects ON users.id=users_in_projects.user_id WHERE project_id="' . $project_id . '"';
-        $result = $mysqli->query($query);
+        // require_once '../src/dbconnect.php';
 
-        while($row = $result->fetch_assoc()){
-            $data[] = $row;
-        }
+        // $query = 'SELECT id AS user_id FROM users LEFT JOIN users_in_projects ON users.id=users_in_projects.user_id WHERE project_id="' . $project_id . '"';
+        // $result = $mysqli->query($query);
+
+        // while($row = $result->fetch_assoc()){
+        //     $data[] = $row;
+        // }
 
         if(!isset($data)) $data = [];
 
         return $response->withJson($data);
     });
 
-    $app->post('', function ($request, $response, $args) {
+    $app->post('', function ($request, $response, $args) use ($app) {
 
         $project_id = $args['project_id'];
 

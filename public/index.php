@@ -8,6 +8,7 @@ $app = new \Slim\App;
 
 // require_once '../src/dbconnect.php';
 require_once '../src/db.php';
+require_once '../src/data.php';
 require_once '../src/auth.php';
 require_once '../src/routing.php';
 

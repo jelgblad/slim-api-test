@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.5.2
+-- version 4.5.5.1
 -- http://www.phpmyadmin.net
 --
 -- Värd: 127.0.0.1
--- Tid vid skapande: 01 sep 2016 kl 20:59
--- Serverversion: 5.7.9
--- PHP-version: 5.6.16
+-- Tid vid skapande: 02 sep 2016 kl 13:32
+-- Serverversion: 5.7.11
+-- PHP-version: 5.6.19
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -26,13 +26,11 @@ SET time_zone = "+00:00";
 -- Tabellstruktur `groups`
 --
 
-DROP TABLE IF EXISTS `groups`;
-CREATE TABLE IF NOT EXISTS `groups` (
+CREATE TABLE `groups` (
   `id` char(33) NOT NULL,
   `project_id` char(33) NOT NULL,
   `name` varchar(128) NOT NULL,
-  `description` varchar(256) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  `description` varchar(256) DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
@@ -40,7 +38,8 @@ CREATE TABLE IF NOT EXISTS `groups` (
 --
 
 INSERT INTO `groups` (`id`, `project_id`, `name`, `description`) VALUES
-('0406f973708511e696f55c260a4bf91a', '39d0597c707b11e696f55c260a4bf91a', 'Group 1', '');
+('0406f973708511e696f55c260a4bf91a', '39d0597c707b11e696f55c260a4bf91a', 'Group 1', ''),
+('28d1361570f611e6801400ffa023d50f', 'feb7c87c708011e696f55c260a4bf91a', 'My new group', '');
 
 -- --------------------------------------------------------
 
@@ -48,13 +47,11 @@ INSERT INTO `groups` (`id`, `project_id`, `name`, `description`) VALUES
 -- Tabellstruktur `projects`
 --
 
-DROP TABLE IF EXISTS `projects`;
-CREATE TABLE IF NOT EXISTS `projects` (
+CREATE TABLE `projects` (
   `id` char(33) NOT NULL,
   `user_id` char(33) NOT NULL,
   `name` varchar(128) NOT NULL,
-  `description` varchar(256) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  `description` varchar(256) DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
@@ -72,12 +69,10 @@ INSERT INTO `projects` (`id`, `user_id`, `name`, `description`) VALUES
 -- Tabellstruktur `users`
 --
 
-DROP TABLE IF EXISTS `users`;
-CREATE TABLE IF NOT EXISTS `users` (
+CREATE TABLE `users` (
   `id` char(33) NOT NULL,
   `firstname` varchar(128) NOT NULL,
-  `lastname` varchar(128) NOT NULL,
-  PRIMARY KEY (`id`)
+  `lastname` varchar(128) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 --
@@ -94,8 +89,7 @@ INSERT INTO `users` (`id`, `firstname`, `lastname`) VALUES
 -- Tabellstruktur `users_in_projects`
 --
 
-DROP TABLE IF EXISTS `users_in_projects`;
-CREATE TABLE IF NOT EXISTS `users_in_projects` (
+CREATE TABLE `users_in_projects` (
   `user_id` char(33) NOT NULL,
   `project_id` char(33) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
@@ -109,6 +103,28 @@ INSERT INTO `users_in_projects` (`user_id`, `project_id`) VALUES
 ('92c62483707a11e696f55c260a4bf91a', '39d0597c707b11e696f55c260a4bf91a'),
 ('92c62483707a11e696f55c260a4bf91a', 'feb7c87c708011e696f55c260a4bf91a'),
 ('962c63e5707a11e696f55c260a4bf91a', '5d0513c7707d11e696f55c260a4bf91a');
+
+--
+-- Index för dumpade tabeller
+--
+
+--
+-- Index för tabell `groups`
+--
+ALTER TABLE `groups`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Index för tabell `projects`
+--
+ALTER TABLE `projects`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Index för tabell `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
